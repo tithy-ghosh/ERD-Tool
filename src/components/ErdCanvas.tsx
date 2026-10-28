@@ -5,12 +5,15 @@ import { ReactFlow, Background, Controls, Panel } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import TableNode from "@/components/TableNode";
 import SqlPanel from "@/components/SqlPanel";
+import ImportPanel from "@/components/ImportPanel";
 import { useErdStore } from "@/store/useErdStore";
 import { exportDiagramAsPng } from "@/lib/exportPng";
 import { generateSql } from "@/lib/generateSql";
 import { RELATION_TYPES, type RelationType } from "@/types/erd";
 
 const nodeTypes = { table: TableNode };
+
+type BottomPanel = "none" | "sql" | "import";
 
 export default function ErdCanvas() {
   const nodes = useErdStore((s) => s.nodes);
@@ -22,7 +25,9 @@ export default function ErdCanvas() {
   const setRelationType = useErdStore((s) => s.setRelationType);
   const clearAll = useErdStore((s) => s.clearAll);
 
-  const [showSql, setShowSql] = useState(false);
+  const [panel, setPanel] = useState<BottomPanel>("none");
+  // Changing this key remounts the canvas, so "fitView" runs again after an import
+  const [canvasKey, setCanvasKey] = useState(0);
 
   // Load the saved diagram from localStorage after the page loads in the browser
   useEffect(() => {
@@ -31,6 +36,9 @@ export default function ErdCanvas() {
 
   const sqlResult = useMemo(() => generateSql(nodes), [nodes]);
   const selectedEdge = edges.find((edge) => edge.selected);
+
+  const togglePanel = (target: BottomPanel) =>
+    setPanel((current) => (current === target ? "none" : target));
 
   const handleClear = () => {
     if (window.confirm("Delete all tables and relationships?")) {
@@ -42,6 +50,7 @@ export default function ErdCanvas() {
     <div className="flex h-full w-full flex-col">
       <div className="min-h-0 flex-1">
         <ReactFlow
+          key={canvasKey}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -53,7 +62,7 @@ export default function ErdCanvas() {
           <Background />
           <Controls />
 
-          <Panel position="top-left" className="flex gap-2">
+          <Panel position="top-left" className="flex flex-wrap gap-2">
             <button
               onClick={addTable}
               className="rounded-md bg-primary px-4 py-2 text-white shadow hover:bg-primary-hover"
@@ -61,10 +70,16 @@ export default function ErdCanvas() {
               + Add Table
             </button>
             <button
-              onClick={() => setShowSql((value) => !value)}
+              onClick={() => togglePanel("import")}
               className="rounded-md border border-line bg-surface px-4 py-2 text-ink shadow hover:bg-primary-soft"
             >
-              {showSql ? "Hide SQL" : "Show SQL"}
+              {panel === "import" ? "Hide Import" : "Import SQL"}
+            </button>
+            <button
+              onClick={() => togglePanel("sql")}
+              className="rounded-md border border-line bg-surface px-4 py-2 text-ink shadow hover:bg-primary-soft"
+            >
+              {panel === "sql" ? "Hide SQL" : "Show SQL"}
             </button>
             <button
               onClick={() => exportDiagramAsPng(nodes)}
@@ -110,11 +125,18 @@ export default function ErdCanvas() {
         </ReactFlow>
       </div>
 
-      {showSql && (
+      {panel === "sql" && (
         <SqlPanel
           sql={sqlResult.sql}
           warnings={sqlResult.warnings}
-          onClose={() => setShowSql(false)}
+          onClose={() => setPanel("none")}
+        />
+      )}
+
+      {panel === "import" && (
+        <ImportPanel
+          onClose={() => setPanel("none")}
+          onImported={() => setCanvasKey((key) => key + 1)}
         />
       )}
     </div>
