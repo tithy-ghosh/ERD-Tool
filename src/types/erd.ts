@@ -1,4 +1,4 @@
-import type { Node } from "@xyflow/react";
+import type { Edge, Node } from "@xyflow/react";
 
 export const COLUMN_TYPES = [
   "INT",
@@ -11,6 +11,14 @@ export const COLUMN_TYPES = [
 ] as const;
 
 export type ColumnType = (typeof COLUMN_TYPES)[number];
+
+export const RELATION_TYPES = [
+  "one-to-one",
+  "one-to-many",
+  "many-to-many",
+] as const;
+
+export type RelationType = (typeof RELATION_TYPES)[number];
 
 export interface Column {
   id: string;
@@ -26,7 +34,6 @@ export interface Table {
   columns: Column[];
   position: { x: number; y: number };
 }
-export type RelationType = "one-to-one" | "one-to-many" | "many-to-many";
 
 export interface Relation {
   id: string;
@@ -34,9 +41,15 @@ export interface Relation {
   toTable: string;
   type: RelationType;
 }
-export type TableNodeData ={
-    name: string;
-    columns: Column[];
-}
+export type TableNodeData = {
+  name: string;
+  columns: Column[];
+};
 
 export type TableFlowNode = Node<TableNodeData, "table">;
+
+export type ErdEdgeData = {
+  relationType: RelationType;
+};
+
+export type ErdEdge = Edge<ErdEdgeData>;
