@@ -6,6 +6,7 @@ import "@xyflow/react/dist/style.css";
 import TableNode from "@/components/TableNode";
 import SqlPanel from "@/components/SqlPanel";
 import ImportPanel from "@/components/ImportPanel";
+import SharePanel from "@/components/SharePanel";
 import { useErdStore } from "@/store/useErdStore";
 import { exportDiagramAsPng } from "@/lib/exportPng";
 import { generateSql } from "@/lib/generateSql";
@@ -13,9 +14,14 @@ import { RELATION_TYPES, type RelationType } from "@/types/erd";
 
 const nodeTypes = { table: TableNode };
 
-type BottomPanel = "none" | "sql" | "import";
+type BottomPanel = "none" | "sql" | "import" | "share";
 
-export default function ErdCanvas() {
+type Props = {
+  // SharedLoader already rehydrates the store, so it sets this to true
+  skipRehydrate?: boolean;
+};
+
+export default function ErdCanvas({ skipRehydrate = false }: Props) {
   const nodes = useErdStore((s) => s.nodes);
   const edges = useErdStore((s) => s.edges);
   const onNodesChange = useErdStore((s) => s.onNodesChange);
@@ -31,8 +37,9 @@ export default function ErdCanvas() {
 
   // Load the saved diagram from localStorage after the page loads in the browser
   useEffect(() => {
+    if (skipRehydrate) return;
     useErdStore.persist.rehydrate();
-  }, []);
+  }, [skipRehydrate]);
 
   const sqlResult = useMemo(() => generateSql(nodes), [nodes]);
   const selectedEdge = edges.find((edge) => edge.selected);
@@ -88,6 +95,12 @@ export default function ErdCanvas() {
               Export PNG
             </button>
             <button
+              onClick={() => togglePanel("share")}
+              className="rounded-md border border-line bg-surface px-4 py-2 text-ink shadow hover:bg-primary-soft"
+            >
+              {panel === "share" ? "Hide Share" : "Share"}
+            </button>
+            <button
               onClick={handleClear}
               className="rounded-md border border-line bg-surface px-4 py-2 text-danger shadow hover:bg-primary-soft"
             >
@@ -138,6 +151,21 @@ export default function ErdCanvas() {
           onClose={() => setPanel("none")}
           onImported={() => setCanvasKey((key) => key + 1)}
         />
+      )}
+
+      {panel === "share" && (
+        <div className="border-t border-line bg-surface">
+          <div className="flex items-center justify-between px-4 pt-3">
+            <h2 className="text-sm font-semibold text-ink">Share diagram</h2>
+            <button
+              onClick={() => setPanel("none")}
+              className="rounded px-2 py-1 text-sm text-ink-muted hover:bg-primary-soft"
+            >
+              Close
+            </button>
+          </div>
+          <SharePanel />
+        </div>
       )}
     </div>
   );
