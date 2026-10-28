@@ -20,12 +20,17 @@ export const RELATION_TYPES = [
 
 export type RelationType = (typeof RELATION_TYPES)[number];
 
+export interface ColumnReference{
+  tableId: string;
+  columnId: string;
+}
 export interface Column {
   id: string;
   name: string;
   type: ColumnType;
   isPrimaryKey: boolean;
   isForeignKey: boolean;
+  references?: ColumnReference | null;
 }
 
 export interface Table {
