@@ -12,7 +12,7 @@ export interface Column {
     name: string;
     type: ColumnType;
     isPrimaryKey: boolean;
-    isFalseKey: boolean;
+    isForeignKey: boolean;
 }
 
 export interface Table{
