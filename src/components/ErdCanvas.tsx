@@ -7,6 +7,7 @@ import TableNode from "@/components/TableNode";
 import SqlPanel from "@/components/SqlPanel";
 import ImportPanel from "@/components/ImportPanel";
 import SharePanel from "@/components/SharePanel";
+import AiPanel from "@/components/AiPanel";
 import { useErdStore } from "@/store/useErdStore";
 import { exportDiagramAsPng } from "@/lib/exportPng";
 import { generateSql } from "@/lib/generateSql";
@@ -14,7 +15,7 @@ import { RELATION_TYPES, type RelationType } from "@/types/erd";
 
 const nodeTypes = { table: TableNode };
 
-type BottomPanel = "none" | "sql" | "import" | "share";
+type BottomPanel = "none" | "sql" | "import" | "share" | "ai";
 
 type Props = {
   // SharedLoader already rehydrates the store, so it sets this to true
@@ -75,6 +76,12 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
               className="rounded-md bg-primary px-4 py-2 text-white shadow hover:bg-primary-hover"
             >
               + Add Table
+            </button>
+            <button
+              onClick={() => togglePanel("ai")}
+              className="rounded-md border border-line bg-surface px-4 py-2 text-ink shadow hover:bg-primary-soft"
+            >
+              {panel === "ai" ? "Hide AI" : "AI Generate"}
             </button>
             <button
               onClick={() => togglePanel("import")}
@@ -151,6 +158,23 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
           onClose={() => setPanel("none")}
           onImported={() => setCanvasKey((key) => key + 1)}
         />
+      )}
+
+      {panel === "ai" && (
+        <div className="border-t border-line bg-surface">
+          <div className="flex items-center justify-between px-4 pt-3">
+            <h2 className="text-sm font-semibold text-ink">
+              Generate diagram with AI
+            </h2>
+            <button
+              onClick={() => setPanel("none")}
+              className="rounded px-2 py-1 text-sm text-ink-muted hover:bg-primary-soft"
+            >
+              Close
+            </button>
+          </div>
+          <AiPanel />
+        </div>
       )}
 
       {panel === "share" && (
