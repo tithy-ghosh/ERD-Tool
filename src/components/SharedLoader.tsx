@@ -16,7 +16,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { Copy, ImageDown, Pencil } from "lucide-react";
-import BrandMark from "@/components/BrandMark";
+import Image from "next/image";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import CanvasControls from "@/components/erd/CanvasControls";
@@ -115,7 +115,14 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-canvas">
       <header className="relative z-20 shrink-0 border-b border-line bg-surface">
         <div className="flex h-14 items-center gap-2.5 px-3 sm:px-4">
-          <BrandMark className="h-8 w-8 shrink-0 text-ink" />
+          <Image
+            src="/erd2.png"
+            alt="ERD Studio"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0"
+            priority
+          />
           <span className="hidden text-[14px] font-semibold tracking-[-0.01em] text-ink sm:block">
             ERD Studio
           </span>

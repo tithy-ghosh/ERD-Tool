@@ -18,7 +18,7 @@ import {
   Undo2,
   X,
 } from "lucide-react";
-import BrandMark from "@/components/BrandMark";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import IconButton from "@/components/ui/IconButton";
 import MenuButton, { type MenuItem } from "@/components/ui/Menu";
@@ -106,7 +106,14 @@ export default function AppHeader({
     <header className="relative z-50 shrink-0 border-b border-line bg-surface">
       <div className="flex h-14 items-center gap-2 px-3 sm:px-4">
         <div className="flex min-w-0 items-center gap-2.5">
-          <BrandMark className="h-8 w-8 shrink-0 text-ink" />
+          <Image
+            src="/erd2.png"
+            alt="ERD Studio"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0"
+            priority
+          />
           <span className="hidden text-[14px] font-semibold tracking-[-0.01em] text-ink sm:block">
             ERD Studio
           </span>
@@ -151,7 +158,7 @@ export default function AppHeader({
             variant="primary"
             size="sm"
             onClick={onAddTable}
-            className="max-sm:hidden"
+            className="max-sm:hidden "
           >
             Add table
           </Button>
