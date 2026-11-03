@@ -17,6 +17,7 @@ export default async function SharedDiagramPage({ params }: PageProps) {
 
   return (
     <SharedLoader
+      name={diagram.name}
       nodes={diagram.data.nodes as unknown as Node[]}
       edges={diagram.data.edges as unknown as Edge[]}
     />

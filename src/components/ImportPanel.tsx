@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import {
+  AlertCircle,
+  FileInput,
+  FileWarning,
+  Loader2,
+  Upload,
+} from "lucide-react";
 import { useErdStore } from "@/store/useErdStore";
 import { parseSqlToDiagram } from "@/lib/parseSql";
-import { FileWarning } from "lucide-react";
+import PanelShell from "@/components/PanelShell";
+import Button from "@/components/ui/Button";
+import { confirmDialog } from "@/components/ui/confirm";
+import { toast } from "@/components/ui/toast";
 
 type Props = {
   onClose: () => void;
@@ -53,6 +63,8 @@ export default function ImportPanel({ onClose, onImported }: Props) {
   const [error, setError] = useState("");
   const [warnings, setWarnings] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const loadDiagram = useErdStore((state) => state.loadDiagram);
 
   const handleImport = async () => {
     setError("");
@@ -64,11 +76,15 @@ export default function ImportPanel({ onClose, onImported }: Props) {
     }
 
     const hasDiagram = useErdStore.getState().nodes.length > 0;
-    if (
-      hasDiagram &&
-      !window.confirm("Importing will replace the current diagram. Continue?")
-    ) {
-      return;
+    if (hasDiagram) {
+      const confirmed = await confirmDialog({
+        title: "Replace the current diagram?",
+        description:
+          "Importing this SQL replaces every table and relationship on the canvas. You can undo this action.",
+        confirmLabel: "Import and replace",
+        tone: "danger",
+      });
+      if (!confirmed) return;
     }
 
     setBusy(true);
@@ -81,8 +97,15 @@ export default function ImportPanel({ onClose, onImported }: Props) {
         return;
       }
 
-      useErdStore.setState({ nodes: result.nodes, edges: result.edges });
+      loadDiagram(result.nodes, result.edges);
       onImported();
+      toast({
+        title: "SQL imported",
+        description: `${result.nodes.length} ${
+          result.nodes.length === 1 ? "table" : "tables"
+        } added to the canvas.`,
+        tone: "success",
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not read this SQL.");
     } finally {
@@ -90,54 +113,92 @@ export default function ImportPanel({ onClose, onImported }: Props) {
     }
   };
 
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    try {
+      const text = await file.text();
+      setSql(text);
+      setError("");
+    } catch {
+      setError("Could not read that file.");
+    }
+  };
+
   return (
-    <div className="flex h-80 shrink-0 flex-col border-t border-line bg-surface text-sm text-ink">
-      <div className="flex items-center gap-2 border-b border-line px-3 py-2">
-        <span className="font-semibold">Import PostgreSQL SQL</span>
-        <div className="ml-auto flex gap-2">
-          <button
+    <PanelShell
+      title="Import SQL"
+      eyebrow="Paste PostgreSQL DDL to rebuild the diagram"
+      icon={<FileInput className="h-4 w-4" />}
+      onClose={onClose}
+      bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
+      footer={
+        <>
+          <Button
+            size="sm"
+            variant="ghost"
             onClick={() => setSql(SAMPLE_SQL)}
-            className="rounded-md border border-line px-3 py-1 hover:bg-primary-soft"
           >
             Load sample
-          </button>
-          <button
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={Upload}
+            onClick={() => fileRef.current?.click()}
+          >
+            Upload .sql
+          </Button>
+          <Button
+            size="sm"
+            variant="primary"
+            icon={busy ? Loader2 : Upload}
             onClick={handleImport}
             disabled={busy}
-            className="rounded-md bg-primary px-3 py-1 text-white hover:bg-primary-hover disabled:opacity-50"
           >
-            {busy ? "Importing..." : "Import"}
-          </button>
-          <button
-            onClick={onClose}
-            className="rounded-md border border-line px-3 py-1 hover:bg-primary-soft"
-          >
-            Close
-          </button>
+            {busy ? "Importing…" : "Import"}
+          </Button>
+        </>
+      }
+    >
+      <input
+        ref={fileRef}
+        type="file"
+        accept=".sql,text/plain"
+        className="sr-only"
+        onChange={(event) => void handleFile(event.target.files?.[0])}
+      />
+
+      {error ? (
+        <div
+          className="m-4 flex shrink-0 items-start gap-2 rounded-md border border-danger/20 bg-danger-soft px-3 py-2.5 text-xs leading-relaxed text-danger"
+          role="alert"
+        >
+          <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <p className="whitespace-pre-wrap">{error}</p>
         </div>
-      </div>
+      ) : null}
 
-      {error && (
-        <p className="max-h-20 overflow-auto whitespace-pre-wrap border-b border-line bg-red-50 px-3 py-2 text-xs text-danger">
-          {error}
-        </p>
-      )}
-
-      {warnings.length > 0 && (
-        <ul className="max-h-20 overflow-auto border-b border-line bg-amber-50 px-3 py-2 text-xs text-warning">
-          {warnings.map((warning, index) => (
-            <li key={index}><FileWarning />{warning}</li>
-          ))}
-        </ul>
-      )}
+      {warnings.length > 0 ? (
+        <div className="max-h-28 shrink-0 overflow-y-auto border-b border-warning/20 bg-warning-soft px-4 py-2.5 md:px-5">
+          <ul className="space-y-1 text-[11px] leading-relaxed text-warning">
+            {warnings.map((warning, index) => (
+              <li key={index} className="flex items-start gap-1.5">
+                <FileWarning className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{warning}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
 
       <textarea
         value={sql}
-        onChange={(e) => setSql(e.target.value)}
-        placeholder="Paste your CREATE TABLE and ALTER TABLE statements here..."
+        onChange={(event) => setSql(event.target.value)}
+        placeholder="Paste your CREATE TABLE and ALTER TABLE statements here…"
         spellCheck={false}
-        className="flex-1 resize-none p-3 font-mono text-xs leading-relaxed outline-none"
+        aria-label="SQL to import"
+        className="erd-field erd-code min-h-0 flex-1 resize-none bg-code p-4 font-mono text-[12px] leading-relaxed text-code-text outline-none placeholder:text-code-text/45 md:p-5"
       />
-    </div>
+    </PanelShell>
   );
 }

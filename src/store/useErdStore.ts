@@ -15,16 +15,20 @@ import type {
 } from "@/types/erd";
 
 type ColumnPatch = Partial<Omit<Column, "id">>;
+type Snapshot = { nodes: TableFlowNode[]; edges: ErdEdge[] };
 
 type ErdState = {
   nodes: TableFlowNode[];
   edges: ErdEdge[];
+  past: Snapshot[];
+  future: Snapshot[];
 
   onNodesChange: (changes: NodeChange<TableFlowNode>[]) => void;
   onEdgesChange: (changes: EdgeChange<ErdEdge>[]) => void;
   onConnect: (connection: Connection) => void;
 
   addTable: () => void;
+  duplicateTable: (tableId: string) => void;
   deleteTable: (tableId: string) => void;
   renameTable: (tableId: string, name: string) => void;
 
@@ -33,8 +37,49 @@ type ErdState = {
   deleteColumn: (tableId: string, columnId: string) => void;
 
   setRelationType: (edgeId: string, relationType: RelationType) => void;
+  deleteEdge: (edgeId: string) => void;
   clearAll: () => void;
+  loadDiagram: (nodes: TableFlowNode[], edges: ErdEdge[]) => void;
+
+  undo: () => void;
+  redo: () => void;
 };
+
+type SetState = (
+  partial: Partial<ErdState> | ((state: ErdState) => Partial<ErdState>)
+) => void;
+type GetState = () => ErdState;
+
+// Coalesce rapid edits so undo feels natural instead of undoing one keystroke.
+let lastHistoryKey = "";
+let lastHistoryAt = 0;
+let dragActive = false;
+
+function record(
+  set: SetState,
+  get: GetState,
+  key = "",
+  coalesceMs = 0
+) {
+  const now = Date.now();
+  if (
+    key &&
+    coalesceMs > 0 &&
+    lastHistoryKey === key &&
+    now - lastHistoryAt < coalesceMs
+  ) {
+    lastHistoryAt = now;
+    return;
+  }
+
+  const { nodes, edges, past } = get();
+  set({
+    past: [...past.slice(-49), { nodes, edges }],
+    future: [],
+  });
+  lastHistoryKey = key;
+  lastHistoryAt = now;
+}
 
 function mapTable(
   nodes: TableFlowNode[],
@@ -89,12 +134,35 @@ export const useErdStore = create<ErdState>()(
     (set, get) => ({
       nodes: [],
       edges: [],
+      past: [],
+      future: [],
 
-      onNodesChange: (changes) =>
-        set({ nodes: applyNodeChanges<TableFlowNode>(changes, get().nodes) }),
+      onNodesChange: (changes) => {
+        const hasRemove = changes.some((change) => change.type === "remove");
+        const hasDragStart = changes.some(
+          (change) => change.type === "position" && change.dragging === true
+        );
+        const hasDragEnd = changes.some(
+          (change) => change.type === "position" && change.dragging === false
+        );
 
-      onEdgesChange: (changes) =>
-        set({ edges: applyEdgeChanges<ErdEdge>(changes, get().edges) }),
+        if (hasRemove) {
+          record(set, get);
+        } else if (hasDragStart && !dragActive) {
+          record(set, get);
+          dragActive = true;
+        }
+        if (hasDragEnd) dragActive = false;
+
+        set({ nodes: applyNodeChanges<TableFlowNode>(changes, get().nodes) });
+      },
+
+      onEdgesChange: (changes) => {
+        if (changes.some((change) => change.type === "remove")) {
+          record(set, get);
+        }
+        set({ edges: applyEdgeChanges<ErdEdge>(changes, get().edges) });
+      },
 
       // The line goes from the parent table (right dot) to the child table (left dot).
       // The child table gets a Foreign Key column automatically.
@@ -111,6 +179,8 @@ export const useErdStore = create<ErdState>()(
           (edge) => edge.source === source && edge.target === target
         );
         if (alreadyConnected) return;
+
+        record(set, get);
 
         const newEdge: ErdEdge = {
           id: crypto.randomUUID(),
@@ -153,6 +223,7 @@ export const useErdStore = create<ErdState>()(
       },
 
       addTable: () => {
+        record(set, get);
         const count = get().nodes.length;
         const newNode: TableFlowNode = {
           id: crypto.randomUUID(),
@@ -181,7 +252,33 @@ export const useErdStore = create<ErdState>()(
         set({ nodes: [...get().nodes, newNode] });
       },
 
-      deleteTable: (tableId) =>
+      duplicateTable: (tableId) => {
+        const source = get().nodes.find((node) => node.id === tableId);
+        if (!source) return;
+
+        record(set, get);
+        const newNode: TableFlowNode = {
+          ...source,
+          id: crypto.randomUUID(),
+          selected: false,
+          position: {
+            x: source.position.x + 48,
+            y: source.position.y + 48,
+          },
+          data: {
+            ...source.data,
+            name: `${source.data.name}_copy`,
+            columns: source.data.columns.map((column) => ({
+              ...column,
+              id: crypto.randomUUID(),
+            })),
+          },
+        };
+        set({ nodes: [...get().nodes, newNode] });
+      },
+
+      deleteTable: (tableId) => {
+        record(set, get);
         set({
           nodes: clearReferences(
             get().nodes.filter((node) => node.id !== tableId),
@@ -190,14 +287,18 @@ export const useErdStore = create<ErdState>()(
           edges: get().edges.filter(
             (edge) => edge.source !== tableId && edge.target !== tableId
           ),
-        }),
+        });
+      },
 
-      renameTable: (tableId, name) =>
+      renameTable: (tableId, name) => {
+        record(set, get, `table:${tableId}`, 700);
         set({
           nodes: mapTable(get().nodes, tableId, (data) => ({ ...data, name })),
-        }),
+        });
+      },
 
-      addColumn: (tableId) =>
+      addColumn: (tableId) => {
+        record(set, get);
         set({
           nodes: mapTable(get().nodes, tableId, (data) => ({
             ...data,
@@ -212,9 +313,11 @@ export const useErdStore = create<ErdState>()(
               },
             ],
           })),
-        }),
+        });
+      },
 
-      updateColumn: (tableId, columnId, patch) =>
+      updateColumn: (tableId, columnId, patch) => {
+        record(set, get, `column:${columnId}`, 500);
         set({
           nodes: mapTable(get().nodes, tableId, (data) => ({
             ...data,
@@ -222,9 +325,11 @@ export const useErdStore = create<ErdState>()(
               col.id === columnId ? { ...col, ...patch } : col
             ),
           })),
-        }),
+        });
+      },
 
-      deleteColumn: (tableId, columnId) =>
+      deleteColumn: (tableId, columnId) => {
+        record(set, get);
         set({
           nodes: clearReferences(
             mapTable(get().nodes, tableId, (data) => ({
@@ -233,18 +338,62 @@ export const useErdStore = create<ErdState>()(
             })),
             (ref) => ref.columnId === columnId
           ),
-        }),
+        });
+      },
 
-      setRelationType: (edgeId, relationType) =>
+      setRelationType: (edgeId, relationType) => {
+        record(set, get);
         set({
           edges: get().edges.map((edge) =>
             edge.id === edgeId
               ? { ...edge, label: relationType, data: { relationType } }
               : edge
           ),
-        }),
+        });
+      },
 
-      clearAll: () => set({ nodes: [], edges: [] }),
+      deleteEdge: (edgeId) => {
+        record(set, get);
+        set({ edges: get().edges.filter((edge) => edge.id !== edgeId) });
+      },
+
+      clearAll: () => {
+        record(set, get);
+        set({ nodes: [], edges: [] });
+      },
+
+      loadDiagram: (nodes, edges) => {
+        record(set, get);
+        set({ nodes, edges });
+      },
+
+      undo: () => {
+        const { past, future, nodes, edges } = get();
+        if (past.length === 0) return;
+
+        const previous = past[past.length - 1];
+        set({
+          nodes: previous.nodes,
+          edges: previous.edges,
+          past: past.slice(0, -1),
+          future: [{ nodes, edges }, ...future].slice(0, 50),
+        });
+        lastHistoryKey = "";
+      },
+
+      redo: () => {
+        const { past, future, nodes, edges } = get();
+        if (future.length === 0) return;
+
+        const next = future[0];
+        set({
+          nodes: next.nodes,
+          edges: next.edges,
+          past: [...past.slice(-49), { nodes, edges }],
+          future: future.slice(1),
+        });
+        lastHistoryKey = "";
+      },
     }),
     {
       name: "erd-tool-diagram",

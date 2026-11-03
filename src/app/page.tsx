@@ -1,9 +1,9 @@
 import ErdCanvas from "@/components/ErdCanvas";
 
-export default function Home(){
+export default function Home() {
   return (
-    <main className="h-screen w-screen">
+    <main className="h-dvh w-full overflow-hidden">
       <ErdCanvas />
     </main>
-  )
+  );
 }

@@ -1,6 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import {
+  AlertTriangle,
+  Check,
+  Copy,
+  Download,
+  FileCode2,
+} from "lucide-react";
+import PanelShell from "@/components/PanelShell";
+import Button from "@/components/ui/Button";
+import { toast } from "@/components/ui/toast";
 
 type Props = {
   sql: string;
@@ -10,18 +20,27 @@ type Props = {
 
 export default function SqlPanel({ sql, warnings, onClose }: Props) {
   const [copied, setCopied] = useState(false);
+
   const copy = async () => {
+    if (!sql) return;
+
     try {
       await navigator.clipboard.writeText(sql);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
+      window.setTimeout(() => setCopied(false), 1600);
+      toast({ title: "SQL copied", tone: "success" });
     } catch {
-      window.alert(
-        "Could not copy. Please select the text and copy it manually.",
-      );
+      toast({
+        title: "Could not copy",
+        description: "Select the SQL and copy it manually.",
+        tone: "error",
+      });
     }
   };
+
   const download = () => {
+    if (!sql) return;
+
     const blob = new Blob([sql], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -29,46 +48,62 @@ export default function SqlPanel({ sql, warnings, onClose }: Props) {
     link.download = "schema.sql";
     link.click();
     URL.revokeObjectURL(url);
+    toast({ title: "schema.sql downloaded", tone: "success" });
   };
+
   return (
-    <div className="flex h-72 shrink-0 flex-col border-t border-line bg-surface text-sm text-ink">
-      <div className="flex items-center gap-2 border-b border-line px-3 py-2">
-        <span className="font-semibold">PostgreSQL SQL</span>
-        <div className="ml-auto flex gap-2">
-          <button
+    <PanelShell
+      title="SQL output"
+      eyebrow="PostgreSQL · ready to run"
+      icon={<FileCode2 className="h-4 w-4" />}
+      onClose={onClose}
+      bodyClassName="flex min-h-0 flex-1 flex-col overflow-hidden"
+      toolbar={
+        <>
+          <Button
+            size="sm"
+            variant="primary"
+            icon={copied ? Check : Copy}
             onClick={copy}
             disabled={!sql}
-            className="rounded-md bg-primary px-3 py-1 text-white hover:bg-primary-hover disabled:opacity-50"
           >
-            {copied ? "Copied!" : "Copy"}
-          </button>
-          <button
+            {copied ? "Copied" : "Copy SQL"}
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            icon={Download}
             onClick={download}
             disabled={!sql}
-            className="rounded-md border border-line px-3 py-1 hover:bg-primary-soft disabled:opacity-50"
           >
             Download .sql
-          </button>
-          <button
-            onClick={onClose}
-            className="rounded-md border border-line px-3 py-1 hover:bg-primary-soft"
-          >
-            Close
-          </button>
+          </Button>
+        </>
+      }
+    >
+      {warnings.length > 0 ? (
+        <div className="shrink-0 border-b border-warning/20 bg-warning-soft px-4 py-3 md:px-5">
+          <ul className="space-y-1.5 text-[11px] leading-relaxed text-warning">
+            {warnings.map((warning, index) => (
+              <li key={index} className="flex items-start gap-1.5">
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{warning}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
+      ) : null}
 
-      {warnings.length > 0 && (
-        <ul className="border-b border-line bg-amber-50 px-3 py-2 text-xs text-warning">
-          {warnings.map((warning, index) => (
-            <li key={index}>⚠ {warning}</li>
-          ))}
-        </ul>
-      )}
-
-      <pre className="flex-1 overflow-auto p-3 font-mono text-xs leading-relaxed">
-        {sql || "-- Add a table to the canvas first"}
+      <pre
+        aria-label="Generated SQL"
+        className="erd-code min-h-0 flex-1 overflow-auto bg-code p-4 font-mono text-[12px] leading-relaxed text-code-text md:p-5"
+      >
+        {sql || (
+          <span className="text-code-text/40">
+            -- Add a table to the canvas to generate SQL
+          </span>
+        )}
       </pre>
-    </div>
+    </PanelShell>
   );
 }

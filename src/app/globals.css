@@ -1,39 +1,289 @@
 @import "tailwindcss";
 
 @theme {
-  
-  --color-primary: #4f46e5;
-  --color-primary-hover: #4338ca;
-  --color-primary-soft: #eef2ff;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 
-
-  --color-pk: #d97706;
-  --color-fk: #2563eb;
-  --color-relation: #6366f1;
-
- 
-  --color-table-head: #1e293b;
-  --color-table-body: #ffffff;
-
-
-  --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
-  --color-line: #e2e8f0;
-
-
-  --color-canvas: #f8fafc;
+  /* Surfaces */
+  --color-canvas: #f7f8fa;
   --color-surface: #ffffff;
+  --color-surface-subtle: #f9fafb;
+  --color-surface-warm: #f3f4f6;
 
-  
-  --color-success: #16a34a;
-  --color-warning: #f59e0b;
-  --color-danger: #dc2626;
+  /* Ink */
+  --color-ink: #111827;
+  --color-ink-muted: #4b5563;
+  --color-ink-subtle: #6b7280;
+
+  /* Lines */
+  --color-line: #e5e7eb;
+  --color-line-strong: #d1d5db;
+
+  /* Accent */
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-soft: #eff6ff;
+  --color-accent: #2563eb;
+  --color-accent-strong: #1d4ed8;
+  --color-accent-soft: #eff6ff;
+
+  /* Diagram semantics */
+  --color-relation: #94a3b8;
+  --color-relation-soft: #f1f5f9;
+  --color-edge: #94a3b8;
+  --color-pk: #b45309;
+  --color-pk-soft: #fffbeb;
+  --color-fk: #0f766e;
+  --color-fk-soft: #f0fdfa;
+
+  /* Feedback */
+  --color-success: #15803d;
+  --color-success-soft: #f0fdf4;
+  --color-warning: #b45309;
+  --color-warning-soft: #fffbeb;
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fef2f2;
+
+  /* Code */
+  --color-code: #0f172a;
+  --color-code-text: #e2e8f0;
+
+  --radius-control: 6px;
+  --radius-card: 8px;
+  --radius-panel: 10px;
+}
+
+:root {
+  color-scheme: light;
 }
 
 html,
 body {
   height: 100%;
   margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
   background: var(--color-canvas);
   color: var(--color-ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  overflow: hidden;
+}
+
+::selection {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+button,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: #d1d5db;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+  background-clip: content-box;
+}
+
+/* React Flow ------------------------------------------------------------- */
+
+.react-flow {
+  --xy-background-color: transparent;
+  --xy-edge-stroke: #94a3b8;
+  --xy-edge-stroke-selected: #2563eb;
+  --xy-connectionline-stroke: #2563eb;
+  --xy-attribution-background-color: transparent;
+}
+
+.react-flow__handle {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid #94a3b8;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px #ffffff;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease;
+}
+
+.react-flow__handle:hover,
+.react-flow__handle.connectingfrom,
+.react-flow__handle.connectingto {
+  transform: scale(1.25);
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.react-flow__handle-left {
+  left: -5px;
+}
+
+.react-flow__handle-right {
+  right: -5px;
+}
+
+.react-flow__edge-path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.react-flow__edge-interaction {
+  cursor: pointer;
+}
+
+.react-flow__node-table {
+  border-radius: 8px;
+}
+
+.react-flow__node-table:focus-visible {
+  outline: none;
+}
+
+.react-flow__node-table:focus-visible .table-card,
+.react-flow__node.selected .table-card {
+  border-color: var(--color-primary);
+  box-shadow:
+    0 0 0 2px rgba(37, 99, 235, 0.16),
+    0 12px 28px -18px rgba(15, 23, 42, 0.4);
+}
+
+.react-flow__selection {
+  border: 1px dashed var(--color-primary);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.react-flow__attribution {
+  border-radius: 0;
+  background: transparent;
+  color: #9ca3af;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0;
+  opacity: 0.8;
+}
+
+.react-flow__attribution a {
+  color: inherit;
+}
+
+.react-flow__minimap {
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  background: var(--color-surface) !important;
+  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.35);
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(15, 23, 42, 0.06);
+}
+
+/* Shared editor surfaces ------------------------------------------------- */
+
+.erd-field::placeholder {
+  color: var(--color-ink-subtle);
+}
+
+.erd-code {
+  font-variant-ligatures: none;
+  tab-size: 2;
+}
+
+@media (max-width: 767px), (pointer: coarse) {
+  .erd-field {
+    font-size: 16px;
+  }
+
+  .erd-field:not(textarea) {
+    min-height: 36px;
+  }
+}
+
+/* Motion ----------------------------------------------------------------- */
+
+@keyframes panel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes sheet-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-panel-in {
+  animation: panel-slide-in 180ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.animate-sheet-in {
+  animation: sheet-slide-up 200ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.animate-soft-fade {
+  animation: soft-fade 140ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
