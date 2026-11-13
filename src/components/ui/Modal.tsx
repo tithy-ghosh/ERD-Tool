@@ -79,7 +79,7 @@ export default function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-950/40 p-4 animate-soft-fade sm:items-center"
+      className="fixed inset-0 z-[90] flex items-end justify-center bg-ink/40 p-4 animate-soft-fade sm:items-center"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -92,7 +92,7 @@ export default function Modal({
         aria-describedby={description ? descriptionId : undefined}
         tabIndex={-1}
         className={cn(
-          "w-full overflow-hidden rounded-xl border border-line bg-surface shadow-[0_24px_64px_-24px_rgba(15,23,42,0.45)] outline-none animate-sheet-in",
+          "w-full overflow-hidden rounded-xl border border-line bg-surface shadow-[0_24px_64px_-24px_rgba(33,38,32,0.35)] outline-none animate-sheet-in",
           widths[size]
         )}
       >

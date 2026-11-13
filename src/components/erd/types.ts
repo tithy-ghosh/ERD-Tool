@@ -1,5 +1,6 @@
 export type PanelState =
   | "none"
+  | "properties"
   | "sql"
   | "import"
   | "share"

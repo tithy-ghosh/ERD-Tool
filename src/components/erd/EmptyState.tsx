@@ -24,28 +24,38 @@ export default function EmptyState({
   onAi,
 }: Props) {
   return (
-    <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center overflow-y-auto p-4 sm:p-6">
-      <div className="pointer-events-auto my-auto w-full max-w-[calc(100vw-2rem)] animate-soft-fade overflow-hidden rounded-xl border border-line bg-surface shadow-[0_1px_2px_rgba(15,23,42,0.04),0_24px_60px_-32px_rgba(15,23,42,0.35)] sm:max-w-[760px]">
-        <div className="grid gap-8 p-6 sm:p-8 md:grid-cols-[minmax(0,1fr)_250px] md:items-center">
-          <div className="min-w-0">
-            <p className="text-xs font-medium text-primary">
-              PostgreSQL schema designer
-            </p>
-            <h1 className="mt-2 text-balance text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink sm:text-[28px]">
-              Design your database schema
-            </h1>
-            <p className="mt-3 max-w-[420px] text-[13px] leading-relaxed text-ink-muted">
-              Add tables, connect relationships, and export production-ready
-              PostgreSQL. Changes save automatically in this browser.
-            </p>
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-y-auto overscroll-contain">
+      <div className="flex min-h-full items-center justify-center p-4 sm:p-6">
+        {/* Side panels can make the canvas much narrower than the viewport,
+            so this card lays itself out against its own width. */}
+        <div className="pointer-events-auto @container w-full max-w-[760px] animate-soft-fade overflow-hidden rounded-lg border border-line bg-surface shadow-[0_1px_2px_rgba(40,44,51,0.04),0_24px_60px_-32px_rgba(40,44,51,0.28)]">
+          <div className="p-6 @2xl:p-8">
+            <div className="grid gap-6 @2xl:grid-cols-[minmax(0,1fr)_230px] @2xl:items-center @2xl:gap-8">
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-primary">
+                  PostgreSQL schema designer
+                </p>
+                <h1 className="mt-2 text-balance text-[24px] font-semibold leading-tight tracking-[-0.02em] text-ink @2xl:text-[28px]">
+                  Design your database schema
+                </h1>
+                <p className="mt-3 max-w-[420px] text-[13px] leading-relaxed text-ink-muted">
+                  Add tables, connect relationships, and export production-ready
+                  PostgreSQL. Changes save automatically in this browser.
+                </p>
+              </div>
 
-            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <div className="hidden @2xl:block">
+                <EmptyStateArt />
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-2 @lg:flex-row">
               <Button
                 variant="primary"
                 size="lg"
                 icon={Plus}
                 onClick={onAddTable}
-                className="sm:flex-1"
+                className="@lg:flex-1"
               >
                 Add table
               </Button>
@@ -54,19 +64,19 @@ export default function EmptyState({
                 size="lg"
                 icon={Bot}
                 onClick={onAi}
-                className="sm:flex-1"
+                className="@lg:flex-1"
               >
                 Generate from description
               </Button>
             </div>
 
-            <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+            <div className="mt-2 flex flex-col gap-2 @md:flex-row">
               <Button
                 variant="ghost"
                 size="lg"
                 icon={FileInput}
                 onClick={onImport}
-                className="sm:flex-1 justify-start sm:justify-center"
+                className="@md:flex-1 justify-start @md:justify-center"
               >
                 Import SQL
               </Button>
@@ -75,7 +85,7 @@ export default function EmptyState({
                 size="lg"
                 icon={LayoutTemplate}
                 onClick={onExamples}
-                className="sm:flex-1 justify-start sm:justify-center"
+                className="@md:flex-1 justify-start @md:justify-center"
               >
                 Browse examples
               </Button>
@@ -92,10 +102,6 @@ export default function EmptyState({
               </li>
               <li>Export SQL</li>
             </ol>
-          </div>
-
-          <div className="hidden md:block">
-            <EmptyStateArt />
           </div>
         </div>
       </div>

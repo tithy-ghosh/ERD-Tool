@@ -5,52 +5,61 @@
   --font-mono: var(--font-geist-mono);
 
   /* Surfaces */
-  --color-canvas: #f7f8fa;
+  --color-canvas: #f6f7f4;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f9fafb;
-  --color-surface-warm: #f3f4f6;
+  --color-surface-subtle: #fafbf8;
+  --color-surface-warm: #eff2ec;
 
   /* Ink */
-  --color-ink: #111827;
-  --color-ink-muted: #4b5563;
-  --color-ink-subtle: #6b7280;
+  --color-ink: #212620;
+  --color-ink-muted: #5b6358;
+  --color-ink-subtle: #737b6e;
 
   /* Lines */
-  --color-line: #e5e7eb;
-  --color-line-strong: #d1d5db;
+  --color-line: #e3e8de;
+  --color-line-strong: #d2d9cb;
 
-  /* Accent */
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-soft: #eff6ff;
-  --color-accent: #2563eb;
-  --color-accent-strong: #1d4ed8;
-  --color-accent-soft: #eff6ff;
+  /* Graphite actions, lime selection */
+  --color-primary: #232a22;
+  --color-primary-hover: #161b15;
+  --color-primary-soft: #f0f3ed;
+  --color-primary-soft-strong: #e4e9df;
+  --color-accent: #65a30d;
+  --color-accent-strong: #4d7c0f;
+  --color-accent-soft: #f3f9e7;
+  --color-accent-soft-strong: #e7f2ce;
 
   /* Diagram semantics */
-  --color-relation: #94a3b8;
-  --color-relation-soft: #f1f5f9;
-  --color-edge: #94a3b8;
-  --color-pk: #b45309;
-  --color-pk-soft: #fffbeb;
-  --color-fk: #0f766e;
-  --color-fk-soft: #f0fdfa;
+  --color-relation: #b1baad;
+  --color-relation-soft: #f3f5f1;
+  --color-edge: #b1baad;
+  --color-pk: #a16207;
+  --color-pk-soft: #fef7e6;
+  --color-fk: #1d4ed8;
+  --color-fk-soft: #eef4ff;
 
   /* Feedback */
-  --color-success: #15803d;
-  --color-success-soft: #f0fdf4;
-  --color-warning: #b45309;
-  --color-warning-soft: #fffbeb;
-  --color-danger: #b91c1c;
-  --color-danger-soft: #fef2f2;
+  --color-success: #2e7a4b;
+  --color-success-soft: #ecf7ef;
+  --color-warning: #a16207;
+  --color-warning-soft: #fef7e6;
+  --color-danger: #b02a3a;
+  --color-danger-hover: #93212f;
+  --color-danger-soft: #fceef0;
 
   /* Code */
-  --color-code: #0f172a;
-  --color-code-text: #e2e8f0;
+  --color-code: #181d17;
+  --color-code-text: #e6ebe2;
 
-  --radius-control: 6px;
-  --radius-card: 8px;
-  --radius-panel: 10px;
+  /* Compact, near-square Lucid-style geometry */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 9px;
+
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-panel: 8px;
 }
 
 :root {
@@ -76,7 +85,7 @@ body {
 }
 
 ::selection {
-  background: var(--color-primary);
+  background: var(--color-accent-strong);
   color: #ffffff;
 }
 
@@ -86,13 +95,13 @@ button,
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-accent-strong);
   outline-offset: 2px;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
+  scrollbar-color: #d2d9cb transparent;
 }
 
 ::-webkit-scrollbar {
@@ -107,12 +116,12 @@ button,
 ::-webkit-scrollbar-thumb {
   border: 3px solid transparent;
   border-radius: 999px;
-  background: #d1d5db;
+  background: #d2d9cb;
   background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #b1baad;
   background-clip: content-box;
 }
 
@@ -120,16 +129,21 @@ button,
 
 .react-flow {
   --xy-background-color: transparent;
-  --xy-edge-stroke: #94a3b8;
-  --xy-edge-stroke-selected: #2563eb;
-  --xy-connectionline-stroke: #2563eb;
+  --xy-edge-stroke: #b1baad;
+  --xy-edge-stroke-selected: var(--color-accent);
+  --xy-connectionline-stroke: var(--color-accent);
   --xy-attribution-background-color: transparent;
+}
+
+/* Keep selected-edge action chips above table cards */
+.react-flow__edgelabel-renderer {
+  z-index: 5;
 }
 
 .react-flow__handle {
   width: 8px;
   height: 8px;
-  border: 1.5px solid #94a3b8;
+  border: 1.5px solid #b1baad;
   border-radius: 999px;
   background: #ffffff;
   box-shadow: 0 0 0 2px #ffffff;
@@ -143,8 +157,8 @@ button,
 .react-flow__handle.connectingfrom,
 .react-flow__handle.connectingto {
   transform: scale(1.25);
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
 }
 
 .react-flow__handle-left {
@@ -174,21 +188,21 @@ button,
 
 .react-flow__node-table:focus-visible .table-card,
 .react-flow__node.selected .table-card {
-  border-color: var(--color-primary);
+  border-color: var(--color-accent);
   box-shadow:
-    0 0 0 2px rgba(37, 99, 235, 0.16),
-    0 12px 28px -18px rgba(15, 23, 42, 0.4);
+    0 0 0 2px rgba(101, 163, 13, 0.2),
+    0 12px 28px -18px rgba(33, 38, 32, 0.35);
 }
 
 .react-flow__selection {
-  border: 1px dashed var(--color-primary);
-  background: rgba(37, 99, 235, 0.05);
+  border: 1px dashed var(--color-accent);
+  background: rgba(101, 163, 13, 0.06);
 }
 
 .react-flow__attribution {
   border-radius: 0;
   background: transparent;
-  color: #9ca3af;
+  color: #737b6e;
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   font-size: 10px;
   letter-spacing: 0;
@@ -204,11 +218,11 @@ button,
   border: 1px solid var(--color-line);
   border-radius: 8px;
   background: var(--color-surface) !important;
-  box-shadow: 0 8px 24px -18px rgba(15, 23, 42, 0.35);
+  box-shadow: 0 8px 24px -18px rgba(33, 38, 32, 0.3);
 }
 
 .react-flow__minimap-mask {
-  fill: rgba(15, 23, 42, 0.06);
+  fill: rgba(33, 38, 32, 0.06);
 }
 
 /* Shared editor surfaces ------------------------------------------------- */

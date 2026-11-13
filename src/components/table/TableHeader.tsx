@@ -5,8 +5,7 @@ import { useErdStore } from "@/store/useErdStore";
 import type { TableNodeData } from "@/types/erd";
 import { useErdMode } from "@/components/erd/ErdMode";
 import MenuButton, { type MenuItem } from "@/components/ui/Menu";
-import { confirmDialog } from "@/components/ui/confirm";
-import { toast } from "@/components/ui/toast";
+import { confirmDeleteTable } from "@/components/erd/tableActions";
 
 type Props = {
   tableId: string;
@@ -15,27 +14,8 @@ type Props = {
 
 export default function TableHeader({ tableId, data }: Props) {
   const renameTable = useErdStore((state) => state.renameTable);
-  const deleteTable = useErdStore((state) => state.deleteTable);
   const duplicateTable = useErdStore((state) => state.duplicateTable);
-  const undo = useErdStore((state) => state.undo);
   const { readOnly } = useErdMode();
-
-  const handleDelete = async () => {
-    const confirmed = await confirmDialog({
-      title: "Delete table?",
-      description: `“${data.name}” and its relationships will be removed from the diagram.`,
-      confirmLabel: "Delete table",
-      tone: "danger",
-    });
-    if (!confirmed) return;
-
-    deleteTable(tableId);
-    toast({
-      title: "Table deleted",
-      description: `“${data.name}” was removed.`,
-      action: { label: "Undo", onClick: undo },
-    });
-  };
 
   const items: MenuItem[] = [
     {
@@ -47,14 +27,14 @@ export default function TableHeader({ tableId, data }: Props) {
       label: "Delete table",
       icon: Trash2,
       danger: true,
-      onClick: () => void handleDelete(),
+      onClick: () => void confirmDeleteTable(tableId, data.name),
     },
   ];
 
   return (
-    <div className="group/header flex items-center gap-2 border-b border-line bg-surface-subtle px-2.5 py-2">
+    <div className="group/header flex items-center gap-2 rounded-t-[5px] border-b border-line bg-surface-subtle px-2.5 py-2">
       <Table2
-        className="h-3.5 w-3.5 shrink-0 text-ink-subtle"
+        className="h-3.5 w-3.5 shrink-0 text-primary"
         aria-hidden="true"
       />
 

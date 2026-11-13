@@ -115,7 +115,7 @@ export default function MenuButton({
               role="menu"
               aria-label={label}
               style={{ top: position.top, left: position.left, width: MENU_WIDTH }}
-              className="fixed z-[80] rounded-lg border border-line bg-surface p-1 shadow-[0_16px_40px_-16px_rgba(15,23,42,0.35)] animate-soft-fade"
+              className="fixed z-[80] rounded-lg border border-line bg-surface p-1 shadow-[0_16px_40px_-16px_rgba(33,38,32,0.28)] animate-soft-fade"
             >
               {items.map((item, index) =>
                 "separator" in item ? (

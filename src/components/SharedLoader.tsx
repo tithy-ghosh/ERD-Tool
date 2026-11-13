@@ -58,7 +58,7 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
         type: "relation",
         markerEnd: {
           type: MarkerType.ArrowClosed,
-          color: "#94a3b8",
+          color: "#b1baad",
           width: 10,
           height: 10,
         },
@@ -114,13 +114,13 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
   return (
     <div className="relative flex h-dvh w-full flex-col overflow-hidden bg-canvas">
       <header className="relative z-20 shrink-0 border-b border-line bg-surface">
-        <div className="flex h-14 items-center gap-2.5 px-3 sm:px-4">
+        <div className="flex h-12 items-center gap-2.5 px-3">
           <Image
             src="/erd2.png"
             alt="ERD Studio"
-            width={32}
-            height={32}
-            className="h-8 w-8 shrink-0"
+            width={24}
+            height={24}
+            className="h-6 w-6 shrink-0"
             priority
           />
           <span className="hidden text-[14px] font-semibold tracking-[-0.01em] text-ink sm:block">
@@ -165,7 +165,7 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
       </header>
 
       <div className="relative min-h-0 flex-1">
-        <ErdModeProvider readOnly>
+        <ErdModeProvider readOnly nodes={viewNodes}>
           <ReactFlow
             nodes={viewNodes}
             edges={flowEdges}
@@ -184,10 +184,10 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
             elementsSelectable
           >
             <Background
-              variant={BackgroundVariant.Dots}
+              variant={BackgroundVariant.Lines}
               gap={20}
               size={1}
-              color="#d7dce3"
+              color="#e8ece2"
             />
 
             <Panel position="bottom-left" className="!m-3">
@@ -205,10 +205,10 @@ export default function SharedLoader({ name, nodes, edges }: Props) {
                 zoomable
                 className="!m-3 hidden xl:block"
                 style={{ width: 160, height: 104 }}
-                nodeColor="#cbd5e1"
-                nodeStrokeColor="#94a3b8"
-                nodeBorderRadius={6}
-                maskColor="rgba(15, 23, 42, 0.06)"
+                nodeColor="#d2d9cb"
+                nodeStrokeColor="#b1baad"
+                nodeBorderRadius={4}
+                maskColor="rgba(33, 38, 32, 0.06)"
               />
             ) : null}
           </ReactFlow>

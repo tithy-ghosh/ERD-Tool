@@ -96,7 +96,7 @@ export default function MobileMenu({
   return (
     <div
       id="mobile-actions"
-      className="absolute inset-x-0 top-full z-50 border-b border-line bg-surface shadow-[0_18px_36px_-24px_rgba(15,23,42,0.4)] animate-soft-fade md:hidden"
+      className="absolute inset-x-0 top-full z-50 border-b border-line bg-surface shadow-[0_18px_36px_-24px_rgba(33,38,32,0.3)] animate-soft-fade md:hidden"
     >
       <div className="divide-y divide-line">
         <div className="py-1">

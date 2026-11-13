@@ -7,11 +7,17 @@ import type { TableFlowNode } from "@/types/erd";
 import TableColumnRow, { type RefOption } from "@/components/table/TableColumnRow";
 import TableHeader from "@/components/table/TableHeader";
 import { useErdMode } from "@/components/erd/ErdMode";
+import ShapeEditingBar from "@/components/erd/ShapeEditingBar";
 
-export default function TableNode({ id, data }: NodeProps<TableFlowNode>) {
-  const nodes = useErdStore((state) => state.nodes);
+export default function TableNode({
+  id,
+  data,
+  selected,
+}: NodeProps<TableFlowNode>) {
+  const storeNodes = useErdStore((state) => state.nodes);
   const addColumn = useErdStore((state) => state.addColumn);
-  const { readOnly } = useErdMode();
+  const { readOnly, nodes: readOnlyNodes } = useErdMode();
+  const nodes = readOnlyNodes ?? storeNodes;
 
   // Columns a Foreign Key can point to: the Primary Key columns of all tables
   const refOptions: RefOption[] = nodes.flatMap((node) =>
@@ -25,13 +31,24 @@ export default function TableNode({ id, data }: NodeProps<TableFlowNode>) {
   );
 
   return (
-    <div className="table-card relative w-[320px] rounded-lg border border-line bg-surface text-sm text-ink shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_28px_-22px_rgba(15,23,42,0.35)]">
-      {!readOnly ? (
-        <>
-          <Handle type="target" position={Position.Left} />
-          <Handle type="source" position={Position.Right} />
-        </>
-      ) : null}
+    <div className="table-card relative w-[320px] rounded-md border border-line bg-surface text-sm text-ink shadow-[0_1px_2px_rgba(33,38,32,0.04),0_10px_24px_-20px_rgba(33,38,32,0.3)]">
+      <ShapeEditingBar
+        tableId={id}
+        name={data.name}
+        selected={Boolean(selected)}
+        readOnly={readOnly}
+      />
+
+      <Handle
+        type="target"
+        position={Position.Left}
+        className={readOnly ? "pointer-events-none opacity-0" : undefined}
+      />
+      <Handle
+        type="source"
+        position={Position.Right}
+        className={readOnly ? "pointer-events-none opacity-0" : undefined}
+      />
 
       <TableHeader tableId={id} data={data} />
 

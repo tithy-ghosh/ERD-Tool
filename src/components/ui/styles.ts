@@ -8,8 +8,8 @@ export const buttonVariants = {
   primary: "bg-primary text-white hover:bg-primary-hover",
   secondary: "border border-line bg-surface text-ink hover:bg-surface-subtle",
   ghost: "text-ink-muted hover:bg-surface-subtle hover:text-ink",
-  soft: "bg-primary-soft text-primary hover:bg-blue-100",
-  danger: "bg-danger text-white hover:bg-red-700",
+  soft: "bg-primary-soft text-primary hover:bg-primary-soft-strong",
+  danger: "bg-danger text-white hover:bg-danger-hover",
   outlineDanger:
     "border border-danger/30 bg-surface text-danger hover:bg-danger-soft",
 } as const;

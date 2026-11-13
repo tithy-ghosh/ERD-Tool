@@ -231,10 +231,10 @@ export default function EmptyStateArt() {
         {/* relationship */}
         <path
           d="M120 63h12c8 0 8 26 8 26"
-          stroke="var(--color-primary)"
+          stroke="var(--color-accent)"
           strokeWidth="1.5"
         />
-        <circle cx="120" cy="63" r="2.5" fill="var(--color-primary)" />
+        <circle cx="120" cy="63" r="2.5" fill="var(--color-accent)" />
         <rect
           x="127"
           y="50"
@@ -242,12 +242,12 @@ export default function EmptyStateArt() {
           height="14"
           rx="3"
           fill="var(--color-surface)"
-          stroke="var(--color-primary)"
+          stroke="var(--color-accent)"
         />
         <text
           x="137.5"
           y="59.5"
-          fill="var(--color-primary)"
+          fill="var(--color-accent-strong)"
           fontFamily="var(--font-geist-sans), sans-serif"
           fontSize="6.5"
           fontWeight="600"

@@ -30,16 +30,16 @@ export default function PanelShell({
       aria-label={title}
       className="flex h-full min-h-0 flex-col bg-surface"
     >
-      <header className="flex shrink-0 items-start gap-2.5 border-b border-line px-4 py-3 md:px-5">
+      <header className="flex h-12 shrink-0 items-center gap-2 border-b border-line px-3.5">
         {icon ? (
-          <span className="mt-0.5 shrink-0 text-ink-subtle">{icon}</span>
+          <span className="shrink-0 text-ink-subtle">{icon}</span>
         ) : null}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[14px] font-semibold text-ink">
+          <h2 className="truncate text-[13px] font-semibold text-ink">
             {title}
           </h2>
           {eyebrow ? (
-            <p className="mt-0.5 truncate text-xs text-ink-muted">{eyebrow}</p>
+            <p className="truncate text-[10px] text-ink-muted">{eyebrow}</p>
           ) : null}
         </div>
         <IconButton
@@ -47,12 +47,12 @@ export default function PanelShell({
           label={`Close ${title}`}
           size="sm"
           onClick={onClose}
-          className="-mr-1 -mt-0.5"
+          className="-mr-1"
         />
       </header>
 
       {toolbar ? (
-        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface-subtle px-4 py-2.5 md:px-5">
+        <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-line bg-surface-subtle px-3.5 py-2.5">
           {toolbar}
         </div>
       ) : null}
@@ -60,7 +60,7 @@ export default function PanelShell({
       <div className={bodyClassName}>{children}</div>
 
       {footer ? (
-        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line bg-surface px-4 py-3 md:px-5">
+        <div className="flex shrink-0 items-center justify-end gap-2 border-t border-line bg-surface px-3.5 py-3">
           {footer}
         </div>
       ) : null}

@@ -9,7 +9,7 @@ export default function CanvasControls() {
   const { zoom } = useViewport();
 
   return (
-    <div className="flex items-center gap-0.5 rounded-md border border-line bg-surface p-1 shadow-[0_4px_12px_-8px_rgba(15,23,42,0.25)]">
+    <div className="flex items-center gap-0.5 rounded-md border border-line bg-surface p-1 shadow-[0_4px_12px_-8px_rgba(33,38,32,0.2)]">
       <IconButton
         icon={Minus}
         label="Zoom out"

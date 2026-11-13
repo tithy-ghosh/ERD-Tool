@@ -15,3 +15,12 @@ model Diagram {
 
   @@map("diagrams")
 }
+
+// Counter table for the database-backed rate limit (src/lib/rateLimit.ts)
+model RateLimit {
+  key         String   @id
+  count       Int
+  windowStart DateTime @map("window_start") @db.Timestamptz(6)
+
+  @@map("rate_limits")
+}
