@@ -5,6 +5,7 @@ export type PanelState =
   | "import"
   | "share"
   | "ai"
-  | "examples";
+  | "examples"
+  | "plan";
 
 export type PanelTarget = Exclude<PanelState, "none">;

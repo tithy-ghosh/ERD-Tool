@@ -1,6 +1,7 @@
 "use client";
 
-import { Share2, Bot, Table2 } from "lucide-react";
+import { Activity, Share2, Bot, Table2 } from "lucide-react";
+import PlanPanel from "../plan/PlanPanel";
 import AiPanel from "@/components/AiPanel";
 import ExamplesPanel from "@/components/ExamplesPanel";
 import ImportPanel from "@/components/ImportPanel";
@@ -19,6 +20,7 @@ type Props = {
   edge: ErdEdge | null;
   onClose: () => void;
   onRefit: () => void;
+  onPlanReady: () => void;
 };
 
 export default function SidePanel({
@@ -29,6 +31,7 @@ export default function SidePanel({
   edge,
   onClose,
   onRefit,
+  onPlanReady,
 }: Props) {
   return (
     <>
@@ -81,7 +84,16 @@ export default function SidePanel({
               <AiPanel onGenerated={onRefit} />
             </PanelShell>
           ) : null}
-
+          {panel === "plan" ? (
+            <PanelShell
+              title="Query plan"
+              eyebrow="See where a query spends its time"
+              icon={<Activity className="h-4 w-4" />}
+              onClose={onClose}
+            >
+              <PlanPanel onRan={onPlanReady} />
+            </PanelShell>
+          ) : null}
           {panel === "share" ? (
             <PanelShell
               title="Share diagram"

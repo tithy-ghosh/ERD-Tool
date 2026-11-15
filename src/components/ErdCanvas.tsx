@@ -19,6 +19,7 @@ import { EditorUiProvider } from "@/components/erd/EditorUi";
 import EmptyState from "@/components/erd/EmptyState";
 import SidePanel from "@/components/erd/SidePanel";
 import ToolRail from "@/components/erd/ToolRail";
+import PlanView from "@/components/plan/PlanView";
 import type { PanelState, PanelTarget } from "@/components/erd/types";
 import { exportDiagramAsPng } from "@/lib/exportPng";
 import { generateSql } from "@/lib/generateSql";
@@ -26,12 +27,14 @@ import { useErdShortcuts } from "@/lib/useErdShortcuts";
 import { confirmDialog } from "@/components/ui/confirm";
 import { toast } from "@/components/ui/toast";
 import { useErdStore } from "@/store/useErdStore";
+import { usePlanStore } from "@/store/usePlanStore";
 import type { ErdEdge, TableFlowNode } from "@/types/erd";
 
 const nodeTypes = { table: TableNode };
 const edgeTypes = { relation: RelationEdge };
 
 type Props = {
+  // SharedLoader already rehydrates the store, so it sets this to true
   skipRehydrate?: boolean;
 };
 
@@ -47,6 +50,7 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
   const redo = useErdStore((state) => state.redo);
   const canUndo = useErdStore((state) => state.past.length > 0);
   const canRedo = useErdStore((state) => state.future.length > 0);
+  const planViewOpen = usePlanStore((state) => state.viewOpen);
 
   const [panel, setPanel] = useState<PanelState>("none");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -119,7 +123,16 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
     setPanel("properties");
   };
 
-  useErdShortcuts({ onAddTable: addTable, onClosePanel: closePanel });
+  // On small screens the panel is a bottom sheet that would hide the new plan
+  const handlePlanReady = () => {
+    if (!window.matchMedia("(min-width: 1024px)").matches) closePanel();
+  };
+
+  useErdShortcuts({
+    onAddTable: addTable,
+    onClosePanel: closePanel,
+    enabled: !planViewOpen,
+  });
 
   const handleClear = async () => {
     setMenuOpen(false);
@@ -238,6 +251,7 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
                 minZoom={0.15}
                 maxZoom={1.75}
                 connectionRadius={28}
+                deleteKeyCode={planViewOpen ? null : "Backspace"}
                 connectionLineStyle={{
                   stroke: "#65a30d",
                   strokeWidth: 1.5,
@@ -288,6 +302,8 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
               onResetZoom={resetZoom}
               onFitView={fitView}
             />
+
+            <PlanView />
           </div>
         </EditorUiProvider>
 
@@ -301,6 +317,7 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
             edge={selectedEdge}
             onClose={closePanel}
             onRefit={refitCanvas}
+            onPlanReady={handlePlanReady}
           />
         ) : null}
       </div>

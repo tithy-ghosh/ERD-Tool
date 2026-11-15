@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Activity,
   FileCode2,
   FileInput,
   ImageDown,
@@ -59,7 +60,7 @@ function MobileAction({
           ? "text-danger hover:bg-danger-soft"
           : active
             ? "bg-primary-soft text-primary"
-            : "text-ink-muted hover:bg-surface-subtle hover:text-ink"
+            : "text-ink-muted hover:bg-surface-subtle hover:text-ink",
       )}
     >
       <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
@@ -116,6 +117,12 @@ export default function MobileMenu({
             icon={FileCode2}
             active={panel === "sql"}
             onClick={() => run(() => onTogglePanel("sql"))}
+          />
+          <MobileAction
+            label="Query plan"
+            icon={Activity}
+            active={panel === "plan"}
+            onClick={() => run(() => onTogglePanel("plan"))}
           />
         </div>
 

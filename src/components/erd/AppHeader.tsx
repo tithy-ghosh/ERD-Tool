@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Activity,
   Check,
   FileInput,
   ImageDown,
@@ -132,7 +133,21 @@ export default function AppHeader({
                 "bg-accent-soft text-accent-strong hover:bg-accent-soft-strong hover:text-accent-strong"
             )}
           />
-
+          <Button
+            icon={Activity}
+            variant="ghost"
+            size="sm"
+            onClick={() => onTogglePanel("plan")}
+            className={cn(
+              "max-md:hidden",
+              panel === "plan" &&
+                "bg-accent-soft text-accent-strong hover:bg-accent-soft-strong hover:text-accent-strong"
+            )}
+            title="Query plan"
+            aria-label="Query plan"
+          >
+            <span className="hidden xl:inline">Query plan</span>
+          </Button>
           <Button
             icon={Share2}
             variant="primary"

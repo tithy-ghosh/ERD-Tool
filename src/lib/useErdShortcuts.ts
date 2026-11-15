@@ -6,10 +6,18 @@ import { useErdStore } from "@/store/useErdStore";
 type Options = {
   onAddTable: () => void;
   onClosePanel: () => void;
+  /** Set to false to pause editing shortcuts, for example while a plan is open. */
+  enabled?: boolean;
 };
 
-export function useErdShortcuts({ onAddTable, onClosePanel }: Options) {
+export function useErdShortcuts({
+  onAddTable,
+  onClosePanel,
+  enabled = true,
+}: Options) {
   useEffect(() => {
+    if (!enabled) return;
+
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const isEditable =
@@ -51,5 +59,5 @@ export function useErdShortcuts({ onAddTable, onClosePanel }: Options) {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onAddTable, onClosePanel]);
+  }, [onAddTable, onClosePanel, enabled]);
 }
