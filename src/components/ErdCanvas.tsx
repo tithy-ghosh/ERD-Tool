@@ -305,6 +305,14 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
                   strokeWidth: 1.5,
                   strokeDasharray: "4 3",
                 }}
+                // Touch/Pointer optimizations for mobile
+                preventScrolling={false}
+                zoomOnScroll={false}
+                panOnScroll={true}
+                panOnDrag={true}
+                selectionOnDrag={true}
+                nodesDraggable={!planViewOpen}
+                nodesConnectable={!planViewOpen}
               >
                 <Background
                   variant={BackgroundVariant.Lines}

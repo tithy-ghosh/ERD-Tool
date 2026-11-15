@@ -101,7 +101,7 @@ export default function PlanDetailPanel({
   return (
     <aside
       aria-label="Node details"
-      className="absolute inset-y-0 right-0 z-10 flex w-full max-w-sm flex-col overflow-y-auto border-l border-line bg-surface shadow-[-16px_0_40px_-30px_rgba(15,23,42,0.4)] md:static md:z-auto md:h-full md:w-[320px] md:max-w-none md:shrink-0 md:shadow-none"
+      className="absolute inset-y-0 right-0 z-10 flex w-full max-w-sm flex-col overflow-y-auto border-l border-line bg-surface shadow-[-16px_0_40px_-30px_rgba(15,23,42,0.4)] md:static md:z-auto md:h-full md:w-[320px] md:max-w-none md:shrink-0 md:shadow-none lg:w-[360px]"
     >
       <header className="sticky top-0 z-10 flex items-start justify-between gap-2 border-b border-line bg-surface px-3 py-2.5">
         <div className="min-w-0">

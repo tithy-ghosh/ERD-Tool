@@ -1,6 +1,7 @@
 "use client";
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
+import { Link2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 import {
   describeNode,
@@ -16,7 +17,7 @@ import {
 const handleClass = "!h-1 !w-1 !min-h-0 !min-w-0 !border-0 !bg-transparent";
 
 export default function PlanNodeCard({ data, selected }: NodeProps<PlanFlowNode>) {
-  const { node, heatPercent, heatLevel, isTop, hasActuals } = data;
+  const { node, heatPercent, heatLevel, isTop, hasActuals, inDiagram } = data;
   const heat = HEAT_COLORS[heatLevel];
   const subtitle = describeNode(node);
 
@@ -49,6 +50,12 @@ export default function PlanNodeCard({ data, selected }: NodeProps<PlanFlowNode>
         {subtitle ? (
           <p className="mt-0.5 truncate text-[11px] text-ink-muted" title={subtitle}>
             {subtitle}
+          </p>
+        ) : null}
+        {inDiagram ? (
+          <p className="mt-1 inline-flex items-center gap-1 rounded bg-primary-soft px-1.5 py-0.5 text-[10px] font-medium leading-none text-primary">
+            <Link2 className="h-3 w-3" aria-hidden="true" />
+            In your diagram
           </p>
         ) : null}
       </div>

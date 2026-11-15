@@ -58,7 +58,7 @@ export default function BottomBar({
           size="sm"
           onClick={onUndo}
           disabled={!canUndo}
-          className="max-sm:hidden"
+          className="max-[400px]:hidden"
         />
         <IconButton
           icon={Redo2}
@@ -66,7 +66,7 @@ export default function BottomBar({
           size="sm"
           onClick={onRedo}
           disabled={!canRedo}
-          className="max-sm:hidden"
+          className="max-[400px]:hidden"
         />
         <span className="mx-1 h-4 w-px bg-line max-sm:hidden" aria-hidden="true" />
         <IconButton

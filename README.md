@@ -14,6 +14,8 @@ Design a PostgreSQL database visually. Draw tables, link them, and get ready-to-
 - Choose the relationship type: one-to-one, one-to-many, many-to-many
 - Export PostgreSQL `CREATE TABLE` and `ALTER TABLE` statements, with warnings for common mistakes
 - Import SQL and get the diagram back
+- Inspect a query plan: paste `EXPLAIN` output or connect read-only, click a node for filters, buffers and rows removed, and get rule-based advice
+- See which plan tables are already in your diagram, jump to them with "Show on diagram", or load a built-in sample plan
 - Download the diagram as PNG
 - Your work is saved in the browser
 

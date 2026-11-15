@@ -244,6 +244,32 @@ button,
   .erd-field:not(textarea) {
     min-height: 36px;
   }
+
+  /* Mobile touch optimizations */
+  button,
+  [role="button"] {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  /* Better tap targets for touch devices */
+  .react-flow__node {
+    cursor: pointer;
+  }
+
+  .react-flow__node:active {
+    transform: scale(0.98);
+  }
+
+  /* Ensure highlighted tables are clearly visible on mobile */
+  .table-card {
+    transition: all 120ms ease;
+  }
+
+  .table-card:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
 }
 
 /* Motion ----------------------------------------------------------------- */

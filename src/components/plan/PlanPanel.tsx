@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   AlertCircle,
+  AlertTriangle,
   ClipboardPaste,
   Eye,
   EyeOff,
@@ -12,11 +13,14 @@ import {
   Play,
   Plug,
   ShieldCheck,
+  Wand2,
 } from "lucide-react";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import { fieldClass, labelClass, textareaClass } from "@/components/ui/styles";
 import { cn } from "@/lib/cn";
+import { EXAMPLE_PLANS } from "@/lib/examplePlans";
+import { buildAdvice } from "@/lib/planAdvice";
 import { findSlowestNode } from "@/lib/planParser";
 import { describeNode, formatMs, formatPercent } from "@/lib/planView";
 import {
@@ -71,11 +75,14 @@ export default function PlanPanel({ onRan }: Props) {
   const runPastedPlan = usePlanStore((state) => state.runPastedPlan);
   const openView = usePlanStore((state) => state.openView);
   const closeView = usePlanStore((state) => state.closeView);
+  const setSelectedNodeId = usePlanStore((state) => state.setSelectedNodeId);
 
   const [showSecret, setShowSecret] = useState(false);
+  const [exampleIndex, setExampleIndex] = useState(-1);
   const loading = status === "loading";
   const activeMode = MODES.find((item) => item.value === mode) ?? MODES[0];
   const slowest = plan ? findSlowestNode(plan) : null;
+  const advice = useMemo(() => (plan ? buildAdvice(plan) : []), [plan]);
 
   async function handleConnect() {
     const ok = await runPlan();
@@ -85,6 +92,23 @@ export default function PlanPanel({ onRan }: Props) {
   function handlePaste() {
     const ok = runPastedPlan();
     if (ok) onRan?.();
+  }
+
+  function handleExample() {
+    const next = (exampleIndex + 1) % EXAMPLE_PLANS.length;
+    const example = EXAMPLE_PLANS[next];
+    const json = JSON.stringify(example.plan, null, 2);
+
+    setExampleIndex(next);
+    setPastedPlan(json);
+    const ok = runPastedPlan(json);
+    if (ok) onRan?.();
+  }
+
+  function showAdvice(nodeId: string) {
+    setSelectedNodeId(nodeId);
+    openView();
+    onRan?.();
   }
 
   return (
@@ -164,15 +188,33 @@ export default function PlanPanel({ onRan }: Props) {
             </p>
           </div>
 
-          <Button
-            variant="primary"
-            icon={FileJson}
-            onClick={handlePaste}
-            disabled={loading}
-            className="w-full"
-          >
-            Show plan
-          </Button>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="primary"
+              icon={FileJson}
+              onClick={handlePaste}
+              disabled={loading}
+              className="w-full"
+            >
+              Show plan
+            </Button>
+
+            <Button
+              variant="secondary"
+              icon={Wand2}
+              onClick={handleExample}
+              disabled={loading}
+              className="w-full"
+            >
+              {exampleIndex >= 0 ? "Try another example" : "Try an example"}
+            </Button>
+
+            <p className="text-[11px] leading-relaxed text-ink-muted">
+              {exampleIndex >= 0
+                ? EXAMPLE_PLANS[exampleIndex]?.description
+                : "No database needed. Loads a small sample plan so you can try the plan view."}
+            </p>
+          </div>
         </div>
       ) : null}
 
@@ -349,6 +391,57 @@ export default function PlanPanel({ onRan }: Props) {
               Explain has no timings. Use Analyze to see which step is slowest.
             </p>
           )}
+
+          <div className="flex flex-col gap-1.5 border-t border-line pt-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-subtle">
+                Advice
+              </h4>
+              {advice.length > 0 ? (
+                <Badge tone="warning">{advice.length}</Badge>
+              ) : null}
+            </div>
+
+            {advice.length > 0 ? (
+              <>
+                <ul className="flex flex-col gap-1">
+                  {advice.slice(0, 3).map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => showAdvice(item.nodeId)}
+                        className="flex w-full items-start gap-2 rounded-md border border-line bg-surface px-2 py-1.5 text-left transition-colors hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
+                      >
+                        <AlertTriangle
+                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-warning"
+                          aria-hidden="true"
+                        />
+                        <span className="min-w-0 text-[11px] leading-snug text-ink-muted">
+                          <span className="block font-medium text-ink">
+                            {item.title}
+                          </span>
+                          {item.sql ? (
+                            <span className="mt-0.5 block truncate font-mono text-[10px] text-ink-subtle">
+                              {item.sql}
+                            </span>
+                          ) : null}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {advice.length > 3 ? (
+                  <p className="text-[11px] text-ink-subtle">
+                    +{advice.length - 3} more in the plan view
+                  </p>
+                ) : null}
+              </>
+            ) : (
+              <p className="text-xs leading-relaxed text-ink-muted">
+                No common problems found.
+              </p>
+            )}
+          </div>
 
           <Button
             variant="secondary"

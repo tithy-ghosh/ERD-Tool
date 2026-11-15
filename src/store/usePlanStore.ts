@@ -10,6 +10,13 @@ export type PlanSource = "paste" | "connect";
 /** Keeps a huge paste from freezing the browser before the parser runs */
 export const MAX_PLAN_CHARS = 200_000;
 
+/** Asks the diagram canvas to select and zoom to these tables */
+export type RevealRequest = {
+  tableIds: string[];
+  /** A new value on every request, even for the same tables */
+  nonce: number;
+};
+
 type PlanState = {
   // Form
   source: PlanSource;
@@ -27,16 +34,23 @@ type PlanState = {
   /** Changes on every successful run, so the plan view can refit itself */
   runId: number;
   viewOpen: boolean;
+  /** The node whose details are open in the plan view */
+  selectedNodeId: string | null;
+  /** Consumed by the ERD canvas to highlight and zoom to plan tables */
+  revealRequest: RevealRequest | null;
 
   setConnectionString: (value: string) => void;
   setSql: (value: string) => void;
   setMode: (mode: PlanMode) => void;
   setSource: (source: PlanSource) => void;
   setPastedPlan: (value: string) => void;
+  setSelectedNodeId: (nodeId: string | null) => void;
   runPlan: () => Promise<boolean>;
-  runPastedPlan: () => boolean;
+  runPastedPlan: (value?: string) => boolean;
   openView: () => void;
   closeView: () => void;
+  revealTables: (tableIds: string[]) => void;
+  clearRevealRequest: () => void;
 };
 
 type ExplainResponse = { error?: string; plan?: unknown };
@@ -56,6 +70,8 @@ export const usePlanStore = create<PlanState>()((set, get) => ({
   planMode: null,
   runId: 0,
   viewOpen: false,
+  selectedNodeId: null,
+  revealRequest: null,
 
   setConnectionString: (connectionString) => set({ connectionString }),
   setSql: (sql) => set({ sql }),
@@ -67,12 +83,16 @@ export const usePlanStore = create<PlanState>()((set, get) => ({
       status: state.status === "error" ? "idle" : state.status,
     })),
   setPastedPlan: (pastedPlan) => set({ pastedPlan }),
+  setSelectedNodeId: (selectedNodeId) => set({ selectedNodeId }),
 
-  runPastedPlan: () => {
+  runPastedPlan: (value) => {
     const { pastedPlan, status } = get();
     if (status === "loading") return false;
 
-    const trimmed = pastedPlan.trim();
+    const text = value ?? pastedPlan;
+    if (value !== undefined) set({ pastedPlan: value });
+
+    const trimmed = text.trim();
     if (!trimmed) {
       set({ status: "error", error: "Paste a plan first." });
       return false;
@@ -104,6 +124,7 @@ export const usePlanStore = create<PlanState>()((set, get) => ({
         planMode: plan.hasActuals ? "analyze" : "explain",
         runId: state.runId + 1,
         viewOpen: true,
+        selectedNodeId: null,
       }));
       return true;
     } catch (error) {
@@ -167,6 +188,7 @@ export const usePlanStore = create<PlanState>()((set, get) => ({
         planMode: mode,
         runId: state.runId + 1,
         viewOpen: true,
+        selectedNodeId: null,
       }));
       return true;
     } catch (error) {
@@ -183,4 +205,17 @@ export const usePlanStore = create<PlanState>()((set, get) => ({
 
   openView: () => set({ viewOpen: true }),
   closeView: () => set({ viewOpen: false }),
+
+  revealTables: (tableIds) => {
+    if (tableIds.length === 0) return;
+    set((state) => ({
+      // The plan view steps aside so the diagram is visible again
+      viewOpen: false,
+      revealRequest: {
+        tableIds: [...tableIds],
+        nonce: (state.revealRequest?.nonce ?? 0) + 1,
+      },
+    }));
+  },
+  clearRevealRequest: () => set({ revealRequest: null }),
 }));

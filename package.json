@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test --import tsx src/lib/planAdvice.test.ts src/lib/diagramMatch.test.ts src/lib/examplePlans.test.ts",
+    "plan:capture": "tsx scripts/capture-plan.ts",
     "postinstall": "prisma generate"
   },
   "dependencies": {

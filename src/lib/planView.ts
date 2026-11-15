@@ -4,6 +4,7 @@
 
 import type { Edge, Node } from "@xyflow/react";
 import type { ParsedPlan, PlanNode } from "../types/plan";
+import { normalizeTableName } from "./diagramMatch";
 import { findSlowestNode, flattenPlan } from "./planParser";
 
 
@@ -95,7 +96,7 @@ export function describeRows(node: PlanNode, hasActuals: boolean): string {
 
 
 export const NODE_WIDTH = 240;
-export const NODE_HEIGHT = 112;
+export const NODE_HEIGHT = 136;
 const GAP_X = 32;
 const GAP_Y = 64;
 
@@ -131,11 +132,16 @@ export type PlanFlowData = {
   /** The node with the most time (or the most cost for plain EXPLAIN) */
   isTop: boolean;
   hasActuals: boolean;
+  /** True when the plan node's relation is also on the diagram */
+  inDiagram: boolean;
 };
 
 export type PlanFlowNode = Node<PlanFlowData, "plan">;
 
-export function buildPlanGraph(plan: ParsedPlan): {
+export function buildPlanGraph(
+  plan: ParsedPlan,
+  diagramNames: Set<string> = new Set()
+): {
   nodes: PlanFlowNode[];
   edges: Edge[];
 } {
@@ -169,6 +175,9 @@ export function buildPlanGraph(plan: ParsedPlan): {
         heatLevel: heatLevel(heatPercent),
         isTop: node.id === topId,
         hasActuals: plan.hasActuals,
+        inDiagram:
+          node.relation !== null &&
+          diagramNames.has(normalizeTableName(node.relation)),
       },
       draggable: false,
       connectable: false,
