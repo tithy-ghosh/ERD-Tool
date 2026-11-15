@@ -51,7 +51,9 @@ export type TableNodeData = {
   columns: Column[];
 };
 
-export type TableFlowNode = Node<TableNodeData, "table">;
+export type TableFlowNode = Node<TableNodeData, "table"> & {
+  highlighted?: boolean;
+};
 
 export type ErdEdgeData = {
   relationType: RelationType;

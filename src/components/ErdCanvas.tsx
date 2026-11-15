@@ -50,7 +50,11 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
   const redo = useErdStore((state) => state.redo);
   const canUndo = useErdStore((state) => state.past.length > 0);
   const canRedo = useErdStore((state) => state.future.length > 0);
+  const highlightTables = useErdStore((state) => state.highlightTables);
+  const clearHighlights = useErdStore((state) => state.clearHighlights);
   const planViewOpen = usePlanStore((state) => state.viewOpen);
+  const revealRequest = usePlanStore((state) => state.revealRequest);
+  const clearRevealRequest = usePlanStore((state) => state.clearRevealRequest);
 
   const [panel, setPanel] = useState<PanelState>("none");
   const [menuOpen, setMenuOpen] = useState(false);
@@ -82,6 +86,50 @@ export default function ErdCanvas({ skipRehydrate = false }: Props) {
     }, 120);
     return () => window.clearTimeout(timer);
   }, [panel, sidebarOpen, canvasKey]);
+
+  // "Show on diagram" from the plan view: highlight the matching tables and zoom
+  // to them. The plan overlay closes in the same state update.
+  useEffect(() => {
+    if (!revealRequest) {
+      clearHighlights();
+      return;
+    }
+    if (revealRequest.tableIds.length === 0) {
+      clearRevealRequest();
+      clearHighlights();
+      return;
+    }
+
+    // Highlight the tables from the plan
+    highlightTables(revealRequest.tableIds);
+
+    // Also select them for the toolbar
+    const ids = new Set(revealRequest.tableIds);
+    const current = useErdStore.getState();
+    useErdStore.setState({
+      nodes: current.nodes.map((node) => ({
+        ...node,
+        selected: ids.has(node.id),
+      })),
+      edges: current.edges.map((edge) => ({ ...edge, selected: false })),
+    });
+
+    // Wait for the overlay to close and the new selection to render
+    const timer = window.setTimeout(() => {
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      flowRef.current?.fitView({
+        nodes: revealRequest.tableIds.map((id) => ({ id })),
+        padding: revealRequest.tableIds.length === 1 ? 0.8 : 0.35,
+        maxZoom: 1.25,
+        duration: reduceMotion ? 0 : 300,
+      });
+      clearRevealRequest();
+    }, 100);
+
+    return () => window.clearTimeout(timer);
+  }, [revealRequest, clearRevealRequest, highlightTables, clearHighlights]);
 
   const sqlResult = useMemo(() => generateSql(nodes), [nodes]);
   const selectedEdge = edges.find((edge) => edge.selected) ?? null;

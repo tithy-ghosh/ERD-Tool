@@ -9,11 +9,16 @@ import TableHeader from "@/components/table/TableHeader";
 import { useErdMode } from "@/components/erd/ErdMode";
 import ShapeEditingBar from "@/components/erd/ShapeEditingBar";
 
+type TableNodeProps = NodeProps<TableFlowNode> & {
+  highlighted?: boolean;
+};
+
 export default function TableNode({
   id,
   data,
   selected,
-}: NodeProps<TableFlowNode>) {
+  highlighted,
+}: TableNodeProps) {
   const storeNodes = useErdStore((state) => state.nodes);
   const addColumn = useErdStore((state) => state.addColumn);
   const { readOnly, nodes: readOnlyNodes } = useErdMode();
@@ -31,7 +36,13 @@ export default function TableNode({
   );
 
   return (
-    <div className="table-card relative w-[320px] rounded-md border border-line bg-surface text-sm text-ink shadow-[0_1px_2px_rgba(33,38,32,0.04),0_10px_24px_-20px_rgba(33,38,32,0.3)]">
+    <div
+      className={`table-card relative w-[320px] rounded-md border text-sm text-ink shadow-[0_1px_2px_rgba(33,38,32,0.04),0_10px_24px_-20px_rgba(33,38,32,0.3)] ${
+        highlighted
+          ? "border-primary bg-primary-soft/50 ring-2 ring-primary/30"
+          : "border-line bg-surface"
+      }`}
+    >
       <ShapeEditingBar
         tableId={id}
         name={data.name}

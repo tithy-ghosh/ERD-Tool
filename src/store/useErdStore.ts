@@ -40,6 +40,8 @@ type ErdState = {
   deleteEdge: (edgeId: string) => void;
   clearAll: () => void;
   loadDiagram: (nodes: TableFlowNode[], edges: ErdEdge[]) => void;
+  highlightTables: (tableIds: string[]) => void;
+  clearHighlights: () => void;
 
   undo: () => void;
   redo: () => void;
@@ -367,6 +369,25 @@ export const useErdStore = create<ErdState>()(
         set({ nodes, edges });
       },
 
+      highlightTables: (tableIds) => {
+        const ids = new Set(tableIds);
+        set({
+          nodes: get().nodes.map((node) => ({
+            ...node,
+            highlighted: ids.has(node.id),
+          })),
+        });
+      },
+
+      clearHighlights: () => {
+        set({
+          nodes: get().nodes.map((node) => ({
+            ...node,
+            highlighted: false,
+          })),
+        });
+      },
+
       undo: () => {
         const { past, future, nodes, edges } = get();
         if (past.length === 0) return;
@@ -399,7 +420,11 @@ export const useErdStore = create<ErdState>()(
       name: "erd-tool-diagram",
       skipHydration: true,
       partialize: (state) => ({
-        nodes: state.nodes.map((node) => ({ ...node, selected: false })),
+        nodes: state.nodes.map((node) => ({
+          ...node,
+          selected: false,
+          highlighted: false,
+        })),
         edges: state.edges.map((edge) => ({ ...edge, selected: false })),
       }),
     }
